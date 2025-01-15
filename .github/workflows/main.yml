@@ -20,7 +20,7 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: [aws-ec2]
+    runs-on: [self-hosted, aws-ec2]
     steps:
       # SSH into EC2 and run commands
       - name: SSH into EC2 and ensure GitHub Actions runner is running
