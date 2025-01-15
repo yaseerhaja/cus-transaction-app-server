@@ -22,6 +22,18 @@ jobs:
     needs: build
     runs-on: [aws-ec2]
     steps:
+      # SSH into EC2 and run commands
+      - name: SSH into EC2 and trigger the runner
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          port: 22
+          script: |
+            echo "Starting the GitHub Actions Runner..."
+            cd /actions-runner
+            ./run.sh
       - name: Pull image from docker hub
         run: docker pull yaseerhaja/cus-transaction-app-server:latest
       - name: Delete old container
