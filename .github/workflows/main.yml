@@ -18,8 +18,7 @@ jobs:
       - name: Publish image to docker hub
         run: docker push yaseerhaja/cus-transaction-app-server:latest
 
-  deploy:
-    needs: build
+  runner:
     runs-on: [self-hosted, aws-ec2]
     steps:
       # SSH into EC2 and run commands
@@ -39,6 +38,11 @@ jobs:
             else
               echo "GitHub Actions runner is already running."
             fi
+
+  deploy:
+    needs: build
+    runs-on: [self-hosted, aws-ec2]
+    steps:
       - name: Pull image from docker hub
         run: docker pull yaseerhaja/cus-transaction-app-server:latest
       - name: Delete old container
