@@ -7,6 +7,8 @@ const cors = require('cors');
 // Load transaction data
 const transactionData: TransactionData = require('./transactions.json');
 
+require('dotenv').config();
+const API_END_POINT = process.env.API_END_POINT;
 
 const app = express();
 
@@ -110,9 +112,8 @@ const resolvers = {
 };
 
 app.use(cors({
-  origin: 'http://ngapp.s3-website.eu-north-1.amazonaws.com',
-  methods: ['GET', 'POST'],
-  credentials: true,
+  origin: '*',
+  methods: ['GET', 'POST']
 }));
 
 // Add GraphQL endpoint
@@ -128,6 +129,6 @@ app.use(
 // Start the server
 app.listen(8081, () => {
   console.log(
-    'GraphQL server running at http://localhost:8081/graphql'
+    `GraphQL server running at ${API_END_POINT}/graphql`
   );
 });
