@@ -1,0 +1,30 @@
+name: Node Build and Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+      - name: Login to docker hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      - name: Build docker image
+        run: docker build -t yaseerhaja/cus-transaction-app-server .
+      - name: Publish image to docker hub
+        run: docker push yaseerhaja/cus-transaction-app-server:latest
+
+  deploy:
+    needs: build
+    runs-on: [aws-ec2]
+    steps:
+      - name: Pull image from docker hub
+        run: docker pull yaseerhaja/cus-transaction-app-server:latest
+      - name: Delete old container
+        run: docker rm -f cus-transaction-app-server-container
+      - name: Run docker container
+        run: docker run -d -p 8081:8081 --name cus-transaction-app-server-container yaseerhaja/cus-transaction-app-server
