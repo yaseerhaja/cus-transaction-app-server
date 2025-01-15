@@ -2,9 +2,11 @@ import express from 'express';
 import { graphqlHTTP } from 'express-graphql';
 import { buildSchema } from 'graphql';
 import { TransactionData, Day, Transaction } from './types';
+const cors = require('cors');
 
 // Load transaction data
 const transactionData: TransactionData = require('./transactions.json');
+
 
 const app = express();
 
@@ -106,6 +108,11 @@ const resolvers = {
     };
   },
 };
+
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST'],
+}));
 
 // Add GraphQL endpoint
 app.use(
