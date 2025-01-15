@@ -110,8 +110,9 @@ const resolvers = {
 };
 
 app.use(cors({
-  origin: '*',
+  origin: 'http://ngapp.s3-website.eu-north-1.amazonaws.com',
   methods: ['GET', 'POST'],
+  credentials: true,
 }));
 
 // Add GraphQL endpoint
