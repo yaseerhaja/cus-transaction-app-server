@@ -11,17 +11,18 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
-      - name: Login to docker hub
+      - name: Login to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-      - name: Build docker image
+      - name: Build Docker image
         run: docker build -t yaseerhaja/cus-transaction-app-server .
-      - name: Publish image to docker hub
+      - name: Publish image to Docker Hub
         run: docker push yaseerhaja/cus-transaction-app-server:latest
 
   runner:
-    runs-on: [self-hosted, aws-ec2]
+    needs: build
+    runs-on: [aws-ec2]  # Use the label for the self-hosted EC2 runner
     steps:
-      # SSH into EC2 and run commands
+      # SSH into EC2 and ensure the GitHub Actions runner is running
       - name: SSH into EC2 and ensure GitHub Actions runner is running
         uses: appleboy/ssh-action@v0.1.7
         with:
@@ -33,19 +34,20 @@ jobs:
             # Check if the GitHub Actions runner is already running
             if ! ps aux | grep -v grep | grep actions-runner; then
               echo "Starting the GitHub Actions runner..."
-              cd actions-runner/
+              cd actions-runner/  # Ensure this is the correct directory where the runner is located
               ./run.sh
             else
               echo "GitHub Actions runner is already running."
             fi
 
   deploy:
-    needs: build
-    runs-on: [self-hosted, aws-ec2]
+    needs: runner
+    runs-on: [self-hosted, aws-ec2]  # Ensure this matches the EC2 runner
     steps:
-      - name: Pull image from docker hub
+      # Pull the latest Docker image from Docker Hub
+      - name: Pull image from Docker Hub
         run: docker pull yaseerhaja/cus-transaction-app-server:latest
       - name: Delete old container
         run: docker rm -f cus-transaction-app-server-container
-      - name: Run docker container
+      - name: Run Docker container
         run: docker run -d -p 8081:8081 --name cus-transaction-app-server-container yaseerhaja/cus-transaction-app-server
